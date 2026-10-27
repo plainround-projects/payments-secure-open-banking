@@ -98,14 +98,28 @@ def test_twenty_different_keys_against_one_single_payment_consent_pay_once(flow)
 
 
 def test_concurrent_payments_never_overdraw_the_payer(flow):
-    consent = grant(flow, terms(maximum=10_000, scope=ConsentScope.RECURRING, period=timedelta(days=365)))
+    consent = grant(flow, terms(maximum=90_000, scope=ConsentScope.RECURRING, period=timedelta(days=365)))
     barrier = threading.Barrier(20)
 
     def call(index: int):
         barrier.wait(timeout=30)
         return attempt(flow, consent.consent_id, 10_000, f"k-{index}")
 
-    # 20 payments of 100.00 under a cap of 100.00 per period: the cap lets one through; ada keeps the rest.
+    # Ada has 500.00 and the cap allows 900.00: twenty payments of 100.00 can only be funded five times.
+    with ThreadPoolExecutor(max_workers=20) as workers:
+        outcomes = [future.result(timeout=120) for future in [workers.submit(call, i) for i in range(20)]]
+    assert sorted(map(str, outcomes)) == ["201"] * 5 + ["insufficient_funds"] * 15
+    assert balance(flow, "acct-ada") == 0 and balance(flow, "acct-shop") == 50_000 and ledger_sum(flow) == 0
+
+
+def test_twenty_concurrent_payments_under_a_period_cap_never_exceed_it(flow):
+    consent = grant(flow, terms(maximum=10_000, scope=ConsentScope.RECURRING, period=timedelta(days=365)))
+    barrier = threading.Barrier(20)
+
+    def call(index: int):
+        barrier.wait(timeout=30)
+        return attempt(flow, consent.consent_id, 10_000, f"c-{index}")
+
     with ThreadPoolExecutor(max_workers=20) as workers:
         outcomes = [future.result(timeout=120) for future in [workers.submit(call, i) for i in range(20)]]
     assert sorted(map(str, outcomes)) == ["201"] + ["period_cap_exceeded"] * 19
