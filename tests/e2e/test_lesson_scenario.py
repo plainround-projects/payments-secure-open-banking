@@ -6,8 +6,12 @@ import json
 from typing import Any
 
 import httpx
+import psycopg
 import pytest
 
+from open_banking.infrastructure.bank_settings import BankConfig
+from open_banking.infrastructure.postgres import conninfo
+from tests.conftest import load_schema, wait_until_ready
 from tests.e2e.conftest import Stack, run_program, stop
 
 pytestmark = pytest.mark.e2e
@@ -134,7 +138,12 @@ def test_both_servers_stop_gracefully_and_their_logs_hold_no_secrets(stack):
     assert "checkout paid" in results["merchant"][1]
 
 
-def test_the_demo_program_runs_the_whole_scenario_and_exits_zero():
+def test_the_demo_program_runs_the_whole_scenario_and_exits_zero(settings: BankConfig):
+    # The demo enrolls its own customers, and the `stack` fixture of this module enrolled "ada" already, so the demo
+    # starts from a freshly loaded schema (what `make run` does with `make db`).
+    wait_until_ready(settings)
+    with psycopg.connect(conninfo(settings.postgres), autocommit=True) as admin:
+        load_schema(admin)
     completed = run_program("demo_cli")
     assert completed.returncode == 0, completed.stdout + completed.stderr
     for line in (
