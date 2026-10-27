@@ -1,0 +1,50 @@
+# PostgreSQL 18 for local use only; the bank and the merchant can run as containers too (profile "app").
+name: payments-secure-open-banking
+
+services:
+  postgres:
+    image: postgres:18
+    # A disposable local database: durability is switched off so the tests and demos do not depend on disk speed, and a
+    # crash recovers instantly. Never use these settings for data you want to keep.
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
+    ports:
+      - "${POSTGRES_PORT:-54613}:5432"
+    environment:
+      # Credentials come from .env (make up creates it from .env.example); none is written here.
+      POSTGRES_USER: ${POSTGRES_USER:-openbanking}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env first}
+      POSTGRES_DB: ${POSTGRES_DB:-openbanking}
+    healthcheck:
+      # -h 127.0.0.1: the image first runs a temporary server on the socket only; TCP is up when the real one is.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 20s
+      retries: 30
+
+  bank:
+    profiles: ["app"]
+    build: .
+    image: payments-secure-open-banking:dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${BANK_PORT:-8463}:8463"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-openbanking}
+      POSTGRES_USER: ${POSTGRES_USER:-openbanking}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env first}
+      BANK_PEPPER: ${BANK_PEPPER:?copy .env.example to .env first}
+      BANK_HOST: 0.0.0.0
+      BANK_PORT: "8463"
+      BANK_PUBLIC_URL: http://localhost:${BANK_PORT:-8463}
+      BANK_SIGNING_KEY_FILE: /data/bank-signing-key.pem
+      OTP_OUTBOX_FILE: /data/otp-outbox.log
+    volumes:
+      - bank-data:/data
+    command: ["open-banking-bank"]
+
+volumes:
+  bank-data:

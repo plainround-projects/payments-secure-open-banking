@@ -1,0 +1,119 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "payments-secure-open-banking"
+version = "0.1.0"
+description = "An open-banking style payment: strong customer authentication, consent as an object, sender-constrained access, and a once-only, tamper-evident initiation."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Sumit Srivastava" }]
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.32,<1",
+    "psycopg[binary,pool]>=3.2,<4",
+    "httpx>=0.27,<1",
+    "pyjwt[crypto]>=2.9,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-cov>=5",
+    "hypothesis>=6.100",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "import-linter>=2.0",
+    "pip-audit>=2.7",
+]
+
+[project.scripts]
+open-banking-bank = "open_banking.interfaces.serve_bank:main"
+open-banking-merchant = "open_banking.interfaces.serve_merchant:main"
+open-banking-admin = "open_banking.interfaces.admin_cli:main"
+open-banking-customer = "open_banking.interfaces.customer_cli:main"
+open-banking-demo = "open_banking.interfaces.demo_cli:main"
+open-banking-health = "open_banking.interfaces.health_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N", "C4", "RUF", "PT", "D100", "D101", "D103", "D104"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "PT018"]  # PT018: a compound assert states one fact in these tests
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests"]
+plugins = ["pydantic.mypy"]
+
+# Test functions are named for the behavior they check; annotating every one adds noise, not safety.
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = ["jwt", "jwt.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+# Starlette 1.x announces that its TestClient will move off httpx; the tests only use the client, not the transport.
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
+markers = [
+    "integration: needs PostgreSQL from docker-compose.yml (make up)",
+    "e2e: runs the lesson's scenario through the real bank and merchant server processes against PostgreSQL (make up)",
+]
+
+[tool.coverage.run]
+source = ["open_banking"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+[tool.importlinter]
+root_package = "open_banking"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: interfaces -> infrastructure -> application -> domain, never upward"
+type = "layers"
+layers = [
+    "open_banking.interfaces",
+    "open_banking.infrastructure",
+    "open_banking.application",
+    "open_banking.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application know nothing about PostgreSQL, HTTP, the web framework or cryptography libraries"
+type = "forbidden"
+source_modules = ["open_banking.domain", "open_banking.application"]
+forbidden_modules = ["psycopg", "psycopg_pool", "fastapi", "starlette", "uvicorn", "httpx", "pydantic", "jwt", "cryptography"]
+
+[[tool.importlinter.contracts]]
+name = "The merchant side never imports the bank's authentication, consent or payment code (it cannot see the customer's PIN or code)"
+type = "forbidden"
+source_modules = ["open_banking.application.merchant", "open_banking.interfaces.merchant_api", "open_banking.interfaces.serve_merchant"]
+forbidden_modules = [
+    "open_banking.application.bank",
+    "open_banking.domain.authentication",
+    "open_banking.infrastructure.otp",
+    "open_banking.interfaces.bank_api",
+    "open_banking.interfaces.customer_cli",
+]
