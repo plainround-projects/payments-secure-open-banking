@@ -8,6 +8,7 @@ An open-banking style payment against a mock bank: a customer authenticates stro
 | **Planned hours** | 14 |
 | **Level** | Advanced |
 | **Architecture** | [ARCHITECTURE.md](ARCHITECTURE.md) (with the trust diagram), decisions: [docs/adr](docs/adr) |
+| **Technology notes** | [tech/](tech/README.md): one beginner note per technology used here |
 
 Everything is a local simulation with fake accounts; no real bank, money or personal data is involved.
 
@@ -160,6 +161,7 @@ tests/
   e2e/               real bank and merchant processes, the customer and admin programs, SIGTERM, and the demo program.
 docs/adr/            decision records: consent against a proof, key-bound tokens, once-only and tamper-evident, locks,
                      the merchant's isolation.
+tech/                one beginner-level note per technology used here (tech/README.md is the index).
 docker-compose.yml   PostgreSQL 18 (and the bank under the "app" profile).      Dockerfile  the bank and merchant as an image.
 pyproject.toml       project metadata and every tool's configuration (ruff, mypy, pytest, import-linter).
 requirements*.lock   hash-pinned dependencies (runtime, and runtime plus development tools); `make lock` regenerates them.
