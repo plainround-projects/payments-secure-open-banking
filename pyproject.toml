@@ -44,6 +44,8 @@ where = ["src"]
 line-length = 120
 target-version = "py312"
 src = ["src", "tests"]
+# tech/ holds teaching notes whose code fences are excerpts; ruff would reformat Python fences in Markdown files.
+extend-exclude = ["tech"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "N", "C4", "RUF", "PT", "D100", "D101", "D103", "D104"]

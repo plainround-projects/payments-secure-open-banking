@@ -14,7 +14,7 @@ export
         test-integration test-e2e audit check docker-build down clean
 
 help: ## list the targets
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | sort
+	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | sort
 
 $(STAMP): requirements-dev.lock pyproject.toml
 	$(PYTHON) -m venv $(VENV)
