@@ -102,6 +102,18 @@ Every statement the project runs against PostgreSQL is a file under [sql/](sql/)
 
 `make run` finishes with the books: `ledger sum across every posting: 0.00` and no money created or lost. The same scenarios run as automated tests: the unit tests (domain rules, the signed-request and proof checks, and a property test over random sequences of grants, payments, revocations, clock moves and tampering), the integration tests (each race against PostgreSQL) and the end-to-end tests (real bank and merchant processes, the customer and admin programs, SIGTERM, and a check that no log holds a secret).
 
+## Verification status
+
+Verified on 2026-10-27: the demo (`make run`), `make lint`, `make test` and `make audit`, and the no-database steps of a fresh clone (`make install`, `make check`, `make audit`: 198 tests pass, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities).
+
+Pending capacity (the shared Docker host ran out of memory and the database crashed repeatedly while this was built):
+
+- `make test-integration` (34 tests) and `make test-e2e` (7 tests) have not completed a clean run against the compose database. The one failure seen was the concurrency test during a database crash; its threads now start together behind a barrier.
+- `make queries` and `make docker-build`.
+- The Docker-based steps of a fresh clone (`make up`, `make run`).
+
+Run `make up && make test-integration && make test-e2e && make queries && make docker-build` once the machine is quiet.
+
 ## Stretch goals
 
 | Stretch (from the lesson) | Built? |
