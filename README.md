@@ -105,15 +105,9 @@ Every statement the project runs against PostgreSQL is a file under [sql/](sql/)
 
 ## Verification status
 
-Verified on 2026-10-27: the demo (`make run`), `make lint`, `make test` and `make audit`, and the no-database steps of a fresh clone (`make install`, `make check`, `make audit`: 198 tests pass, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities).
+Verified on 2026-10-27 in a fresh clone, one stack at a time: `make install`, `make check` and `make audit` (198 unit tests, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities), `make up`, `make run` (all eight sections; the last line is `ledger sum across every posting: 0.00`), `make queries`, `make test-integration` (35 passed, including the concurrency races), `make down`, and `make docker-build`.
 
-Pending capacity (the shared Docker host ran out of memory and the database crashed repeatedly while this was built):
-
-- `make test-integration` (34 tests) and `make test-e2e` (7 tests) have not completed a clean run against the compose database. The one failure seen was the concurrency test during a database crash; its threads now start together behind a barrier.
-- `make queries` and `make docker-build`.
-- The Docker-based steps of a fresh clone (`make up`, `make run`).
-
-Run `make up && make test-integration && make test-e2e && make queries && make docker-build` once the machine is quiet.
+`make test-e2e` ran 7 tests: 6 passed and 1 failed. The failing test ran the demo program on a database in which an earlier test of the same module had already enrolled the customer `ada`, so the demo stopped with a unique violation. That was a test-isolation fault, not a fault of the bank: the demo test now reloads the schema first (commit "test: reload the schema before the demo run in the end-to-end module"). The re-run after the fix is pending capacity (the Docker daemon stopped answering): run `make up && make test-e2e && make down`.
 
 ## Stretch goals
 
