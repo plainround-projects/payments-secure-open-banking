@@ -89,6 +89,68 @@ jobs:
 - `options: >-` passes `docker run` flags to the container: a health check like the Compose one. `>-` is YAML's "folded" string: the following lines are joined with spaces into one string without a trailing newline. GitHub waits for the service to be healthy before running steps.
 - `make test-integration test-e2e` runs both targets in one command. The `integration` job does not need `.env`, because the variables are already set.
 
+<!-- listing:.github/workflows/ci.yml -->
+### `.github/workflows/ci.yml` (43 lines)
+
+```yaml
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+```
+
+`name: ci` is the label. `on: [push, pull_request]` runs the workflow for every push and every pull request. `jobs:` holds the independent jobs.
+
+```yaml
+  check:
+    name: Format, lint, types, import rules, unit tests with coverage, dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: make check
+      - run: make audit
+```
+
+The first job, `check`, with a long `name` describing its checks. `runs-on: ubuntu-latest` picks the machine image. `steps` run in order: `actions/checkout@v4` copies the repository onto the machine; `actions/setup-python@v5` with `python-version: "3.12"` installs Python (quoted so YAML does not read it as a number); `run: make check` runs lint and the unit tests with the coverage bar; `run: make audit` scans the dependencies.
+
+```yaml
+  integration:
+    name: Integration and end-to-end tests (PostgreSQL service container)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        ports:
+          - 54613:5432
+        env:
+          POSTGRES_USER: openbanking
+          POSTGRES_PASSWORD: ci-only-throwaway
+          POSTGRES_DB: openbanking
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U openbanking -d openbanking"
+          --health-interval 3s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      POSTGRES_PASSWORD: ci-only-throwaway
+      BANK_PEPPER: ci-only-throwaway-pepper
+      SCRYPT_N: "1024"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: make test-integration test-e2e
+```
+
+The second job. `services: postgres:` starts a `postgres:18` container beside the job with `ports: - 54613:5432`, the role, password and database in `env` (named `openbanking`), and `options: >-` followed by health-check flags (`>-` folds the following lines into one string without a trailing newline). The job-level `env` gives the tests the settings they read from the environment: `POSTGRES_PASSWORD` (`ci-only-throwaway`, a throwaway for a disposable database), `BANK_PEPPER` (`ci-only-throwaway-pepper`, at least the required 16 characters) and `SCRYPT_N: "1024"` (a low password-hashing cost so CI is fast; the value is quoted so YAML keeps it as text). The steps check out the code, install Python and run `make test-integration test-e2e`.
+
+<!-- /listing:.github/workflows/ci.yml -->
+
 ## Try it yourself
 
 1. Read the same checks locally:

@@ -105,7 +105,7 @@ Every statement the project runs against PostgreSQL is a file under [sql/](sql/)
 
 ## Verification status
 
-Verified on 2026-10-27 and 2026-11-02, one stack at a time, each taken down afterwards: in a fresh clone `make install`, `make check` and `make audit` (198 unit tests, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities), `make up`, `make run` (all eight sections; the last line is `ledger sum across every posting: 0.00`), `make queries`, `make test-integration` (35 passed, including the concurrency races) and `make docker-build`; then `make test-e2e` (7 passed).
+Verified on 2026-10-27 and 2026-11-02, one stack at a time, each taken down afterwards: in a fresh clone `make install`, `make check` and `make audit` (198 unit tests, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities), `make up`, `make run` (all eight sections; the last line is `ledger sum across every posting: 0.00`), `make queries`, `make test-integration` (35 passed, including the concurrency races) and `make docker-build`; then `make test-e2e` (7 passed). Re-run on 2026-11-02 after the technology notes were rewritten: `make check` (198 unit tests, lint, types and 3 import contracts clean), then with the database up `make test-integration` (35 passed), `make test-e2e` (7 passed), `make migrate`, `make queries`, `make run` (ending `ledger sum across every posting: 0.00`), `make register`, `make serve-bank` with `make health` and the published bank key, and `make down`.
 
 The first end-to-end run had one failure, a test-isolation fault: the demo test ran on a database in which an earlier test of the module had already enrolled the customer `ada`. The demo test now reloads the schema first.
 

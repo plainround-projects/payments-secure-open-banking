@@ -104,6 +104,94 @@ volumes:
 - `command: ["open-banking-bank"]` states which program the container runs (it is also the image default).
 - The `environment` list passes the settings the Python program reads (see `environment-variables-and-dotenv.md`).
 
+<!-- listing:docker-compose.yml -->
+### `docker-compose.yml` (50 lines)
+
+```yaml
+# PostgreSQL 18 for local use only; the bank and the merchant can run as containers too (profile "app").
+name: payments-secure-open-banking
+
+services:
+```
+
+The comment says this is PostgreSQL 18 for local use, with the bank and the merchant able to run as containers too under the profile `app`. `name: payments-secure-open-banking` fixes the Compose project name, which prefixes container, network and volume names. `services:` is the map of containers.
+
+```yaml
+  postgres:
+    image: postgres:18
+    # A disposable local database: durability is switched off so the tests and demos do not depend on disk speed, and a
+    # crash recovers instantly. Never use these settings for data you want to keep.
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
+    ports:
+      - "${POSTGRES_PORT:-54613}:5432"
+```
+
+The database service: `image: postgres:18` is used as published. The comment above `command` explains the three server flags `fsync=off`, `synchronous_commit=off` and `full_page_writes=off`: they trade crash-safety for speed, acceptable only for a disposable database. `ports: - "${POSTGRES_PORT:-54613}:5432"` publishes the container's port 5432 on the computer's port 54613 (the text `${NAME:-default}` means "the variable NAME, or default if unset").
+
+```yaml
+    environment:
+      # Credentials come from .env (make up creates it from .env.example); none is written here.
+      POSTGRES_USER: ${POSTGRES_USER:-openbanking}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env first}
+      POSTGRES_DB: ${POSTGRES_DB:-openbanking}
+```
+
+`environment` gives the image its first-start settings. The comment says credentials come from `.env` (`make up` creates it from `.env.example`) and none is written here. `POSTGRES_USER` and `POSTGRES_DB` (default `openbanking`) and `POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env first}`: the `:?message` form makes Compose stop with that message if the variable is unset, so no password is written in the file.
+
+```yaml
+    healthcheck:
+      # -h 127.0.0.1: the image first runs a temporary server on the socket only; TCP is up when the real one is.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 20s
+      retries: 30
+```
+
+The health check. The comment explains `-h 127.0.0.1`: during first start the image runs a temporary server that listens only on a local socket, so a check over TCP succeeds only when the real server is up. `test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]` runs `pg_isready` through a shell inside the container (`$$` stops Compose from filling the variables itself). It runs every 5 seconds, may take 20, and after 30 failures the service is unhealthy; `up --wait` waits for healthy.
+
+```yaml
+  bank:
+    profiles: ["app"]
+    build: .
+    image: payments-secure-open-banking:dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${BANK_PORT:-8463}:8463"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-openbanking}
+      POSTGRES_USER: ${POSTGRES_USER:-openbanking}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?copy .env.example to .env first}
+      BANK_PEPPER: ${BANK_PEPPER:?copy .env.example to .env first}
+      BANK_HOST: 0.0.0.0
+      BANK_PORT: "8463"
+      BANK_PUBLIC_URL: http://localhost:${BANK_PORT:-8463}
+      BANK_SIGNING_KEY_FILE: /data/bank-signing-key.pem
+      OTP_OUTBOX_FILE: /data/otp-outbox.log
+```
+
+The optional bank service. `profiles: ["app"]` means it starts only with `--profile app`. `build: .` builds the image from the `Dockerfile` here and `image:` names it. `depends_on: postgres: condition: service_healthy` starts the bank only after the database is healthy. `ports` publishes 8463. `environment` passes the settings the program reads: `POSTGRES_HOST: postgres` uses the service name as the host (Compose's private network resolves it to the database container) and the container-side port is 5432; `BANK_PEPPER` is required (`:?`); `BANK_HOST: 0.0.0.0` listens on all interfaces; `BANK_PUBLIC_URL` is the address merchants use, which proofs are bound to; the signing-key file and the code outbox live under `/data`.
+
+```yaml
+    volumes:
+      - bank-data:/data
+    command: ["open-banking-bank"]
+```
+
+`volumes: - bank-data:/data` mounts the named volume `bank-data` at `/data` inside the container, so the bank's signing key and outbox file survive container restarts. `command: ["open-banking-bank"]` is the program the container runs.
+
+```yaml
+volumes:
+  bank-data:
+```
+
+The top-level `volumes:` declares the named volume `bank-data` (an empty entry means Docker creates it with default settings). `make down` uses `-v` to delete it.
+
+<!-- /listing:docker-compose.yml -->
+
 ## Try it yourself
 
 1. Validate and print the final file with variables filled in:

@@ -63,7 +63,7 @@ annotated-doc==0.0.5 \
 
 - `==0.0.5` pins one exact version.
 - Each `--hash=sha256:...` is an allowed file for that version (there is one hash per wheel, for each platform).
-- `# via fastapi` says why this package is here: `fastapi` needs it. The lock covers the whole **dependency tree**, not just the four direct requirements: pydantic, starlette, anyio, h11 and so on.
+- `# via fastapi` says why this package is here: `fastapi` needs it. The lock covers the whole **dependency tree**, not just the four direct requirements: pydantic, starlette, anyio and h11, and every other package listed in the file.
 - The trailing `\` joins lines, like a long command in a shell.
 
 Selected pins at the time of writing: `fastapi==0.162.0`, `uvicorn==0.54.0`, `psycopg==3.3.6`, `psycopg-pool==3.3.3`, `httpx==0.28.1`, `pydantic==2.14.1`, `starlette==1.10.0`, `pyjwt==2.15.1`, `cryptography==50.0.2`, `cffi==2.1.1` (the last is the bridge `cryptography` uses to call its compiled code).
