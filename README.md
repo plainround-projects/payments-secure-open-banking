@@ -105,9 +105,9 @@ Every statement the project runs against PostgreSQL is a file under [sql/](sql/)
 
 ## Verification status
 
-Verified on 2026-10-27 in a fresh clone, one stack at a time: `make install`, `make check` and `make audit` (198 unit tests, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities), `make up`, `make run` (all eight sections; the last line is `ledger sum across every posting: 0.00`), `make queries`, `make test-integration` (35 passed, including the concurrency races), `make down`, and `make docker-build`.
+Verified on 2026-10-27 and 2026-11-02, one stack at a time, each taken down afterwards: in a fresh clone `make install`, `make check` and `make audit` (198 unit tests, 3 import contracts kept, 99% coverage of domain and application, no known vulnerabilities), `make up`, `make run` (all eight sections; the last line is `ledger sum across every posting: 0.00`), `make queries`, `make test-integration` (35 passed, including the concurrency races) and `make docker-build`; then `make test-e2e` (7 passed).
 
-`make test-e2e` ran 7 tests: 6 passed and 1 failed. The failing test ran the demo program on a database in which an earlier test of the same module had already enrolled the customer `ada`, so the demo stopped with a unique violation. That was a test-isolation fault, not a fault of the bank: the demo test now reloads the schema first (commit "test: reload the schema before the demo run in the end-to-end module"). The re-run after the fix is pending capacity (the Docker daemon stopped answering): run `make up && make test-e2e && make down`.
+The first end-to-end run had one failure, a test-isolation fault: the demo test ran on a database in which an earlier test of the module had already enrolled the customer `ada`. The demo test now reloads the schema first.
 
 ## Stretch goals
 
