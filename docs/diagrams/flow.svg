@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="836" viewBox="0 0 1200 836" role="img" aria-labelledby="t d">
+<title id="t">One payment through payments-secure-open-banking</title>
+<desc id="d">The Merchant service gets a token bound to its key, signs the payment request with its idempotency key and sends it with a fresh proof. The Payment API authenticates the caller, locks the key, checks the signature first, locks the consent and checks every rule, locks the accounts in id order and posts once in Accounts and consents. A changed amount fails with request_not_as_signed. The answer carries the bank's signature, which the merchant verifies.</desc>
+<style>
+:root{--paper:#ffffff;--ink:#10243d;--mute:#52677f;--accent:#0a6aa8;--good:#19743f;--warn:#8a5a00}
+text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;fill:var(--ink)}
+.title{font-family:Georgia,'Iowan Old Style','Times New Roman',serif;font-size:36px}
+.caption{font-size:16px;fill:var(--mute)}
+.name{font-size:20px;font-weight:600}
+.lane{font-size:17px;font-weight:600}
+.sub{font-size:15px;fill:var(--mute)}
+.label{font-size:15px}
+.tag{font-size:15px;fill:var(--mute)}
+.num{font-size:15px;font-weight:700;fill:var(--paper)}
+.legend{font-size:14px;fill:var(--mute)}
+.t-accent{fill:var(--accent)}
+.t-good{fill:var(--good)}
+.t-warn{fill:var(--warn)}
+.t-ink{fill:var(--ink)}
+.b{font-weight:600}
+.paper{fill:var(--paper);stroke:var(--mute);stroke-opacity:.3}
+.grid{fill:url(#grid)}
+.boundary{fill:var(--mute);fill-opacity:.035;stroke:var(--mute);stroke-opacity:.7;stroke-dasharray:6 5}
+.svc{fill:var(--accent);fill-opacity:.08;stroke:var(--accent);stroke-width:1.25}
+.store{fill:var(--mute);fill-opacity:.1;stroke:var(--mute);stroke-width:1.25}
+.rim{fill:none;stroke:var(--mute);stroke-width:1.25}
+.actor{fill:none;stroke:var(--mute);stroke-width:1.25}
+.slot{fill:var(--accent);fill-opacity:.14;stroke:var(--accent);stroke-width:1}
+.note{fill:var(--warn);fill-opacity:.09;stroke:var(--warn);stroke-width:1}
+.win{fill:var(--good);fill-opacity:.09;stroke:var(--good);stroke-width:1}
+.hair{fill:none;stroke:var(--mute);stroke-opacity:.4;stroke-width:1}
+.zone{fill:var(--accent);fill-opacity:.045;stroke:var(--accent);stroke-width:1.25;stroke-dasharray:6 5}
+.stop{fill:none;stroke:var(--warn);stroke-width:4;stroke-linecap:round}
+.mask{fill:var(--paper)}
+.sync,.async,.read,.fail,.ok{fill:none}
+.sync{stroke:var(--accent);stroke-width:1.75;marker-end:url(#a-sync)}
+.async{stroke:var(--accent);stroke-width:1.75;stroke-dasharray:8 6;marker-end:url(#a-async)}
+.read{stroke:var(--mute);stroke-width:1.75;stroke-linecap:round;stroke-dasharray:1 6;marker-end:url(#a-read)}
+.fail{stroke:var(--warn);stroke-width:2;marker-end:url(#a-fail)}
+.ok{stroke:var(--good);stroke-width:1.75;marker-end:url(#a-ok)}
+.dot{fill:var(--accent)}
+.dot-w{fill:var(--warn)}
+.dot-g{fill:var(--good)}
+.head-sync,.head-async{stroke:var(--accent)}
+.head-sync{fill:var(--accent)}
+.head-async,.head-read{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.head-read{stroke:var(--mute)}
+.head-fail{fill:var(--warn)}
+.head-ok{fill:var(--good)}
+.gridline{fill:none;stroke:var(--mute);stroke-opacity:.09}
+</style>
+<defs>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path class="gridline" d="M40 0H0V40"/></pattern>
+<marker id="a-sync" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-sync" d="M0 0L10 5L0 10z"/></marker>
+<marker id="a-async" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-async" d="M1 1L9 5L1 9"/></marker>
+<marker id="a-read" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-read" d="M1 1L9 5L1 9"/></marker>
+<marker id="a-fail" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-fail" d="M0 0L10 5L0 10z"/></marker>
+<marker id="a-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path class="head-ok" d="M0 0L10 5L0 10z"/></marker>
+</defs>
+<rect class="paper" x="0.5" y="0.5" width="1199" height="835" rx="16"/>
+<rect class="grid" x="1" y="1" width="1198" height="834" rx="16"/>
+<text class="title" x="48" y="68">One payment under a consent, as the merchant makes it</text>
+<text class="caption" x="48" y="100">The consent already exists. The signature is checked before the consent is read; amber is the changed amount.</text>
+<rect class="svc" x="410" y="128" width="120" height="48" rx="10"/>
+<text class="lane" x="470" y="148" text-anchor="middle">Merchant</text>
+<text class="lane" x="470" y="168" text-anchor="middle">service</text>
+<rect class="svc" x="630" y="128" width="140" height="48" rx="10"/>
+<text class="lane" x="700" y="158" text-anchor="middle">Payment API</text>
+<rect class="svc" x="855" y="128" width="150" height="48" rx="10"/>
+<text class="lane" x="930" y="148" text-anchor="middle">Accounts and</text>
+<text class="lane" x="930" y="168" text-anchor="middle">consents</text>
+<path class="hair" d="M470 176V752M700 176V752M930 176V688"/>
+<path class="hair" d="M66 216V728"/>
+<circle class="dot" cx="66" cy="216" r="15"/>
+<text class="num" x="66" y="221" text-anchor="middle">1</text>
+<text class="label b t-ink" x="96" y="212">Get a token if there is none</text>
+<text class="sub" x="96" y="232">secret, and a proof from its key</text>
+<path class="sync" d="M470 216H700"/>
+<text class="label t-accent" x="482" y="206">POST /oauth/token</text>
+<circle class="dot" cx="66" cy="280" r="15"/>
+<text class="num" x="66" y="285" text-anchor="middle">2</text>
+<text class="label b t-ink" x="96" y="276">Sign the request, send it</text>
+<text class="sub" x="96" y="296">key, signature, fresh proof</text>
+<path class="sync" d="M470 280H700"/>
+<text class="label t-accent" x="482" y="270">POST /v1/payments</text>
+<circle class="dot" cx="66" cy="344" r="15"/>
+<text class="num" x="66" y="349" text-anchor="middle">3</text>
+<text class="label b t-ink" x="96" y="340">Authenticate the caller</text>
+<text class="sub" x="96" y="360">token, bound key, proof id new</text>
+<path class="sync" d="M700 344H930"/>
+<text class="label t-accent" x="712" y="334">store the proof id</text>
+<circle class="dot" cx="66" cy="408" r="15"/>
+<text class="num" x="66" y="413" text-anchor="middle">4</text>
+<text class="label b t-ink" x="96" y="404">Lock the key; replay if stored</text>
+<text class="sub" x="96" y="424">Idempotent-Replay: true</text>
+<path class="sync" d="M700 408H930"/>
+<text class="label t-accent" x="712" y="398">lock (merchant, key)</text>
+<circle class="dot" cx="66" cy="472" r="15"/>
+<text class="num" x="66" y="477" text-anchor="middle">5</text>
+<text class="label b t-ink" x="96" y="468">Check the signature first</text>
+<text class="sub" x="96" y="488">against the registered key</text>
+<rect class="slot" x="694" y="454" width="12" height="36" rx="4"/>
+<text class="label t-accent" x="716" y="477">verify signature</text>
+<circle class="dot-w" cx="66" cy="536" r="15"/>
+<text class="num" x="66" y="541" text-anchor="middle">5x</text>
+<text class="label b t-warn" x="96" y="532">A changed amount is refused</text>
+<text class="sub" x="96" y="552">400 request_not_as_signed</text>
+<path class="fail" d="M700 536H470"/>
+<text class="label t-warn" x="482" y="526">request_not_as_signed</text>
+<circle class="dot" cx="66" cy="600" r="15"/>
+<text class="num" x="66" y="605" text-anchor="middle">6</text>
+<text class="label b t-ink" x="96" y="596">Lock the consent, check rules</text>
+<text class="sub" x="96" y="616">payee, revoked, expired, cap</text>
+<path class="sync" d="M700 600H930"/>
+<text class="label t-accent" x="712" y="590">lock, check rules</text>
+<circle class="dot" cx="66" cy="664" r="15"/>
+<text class="num" x="66" y="669" text-anchor="middle">7</text>
+<text class="label b t-ink" x="96" y="660">Lock accounts, post once</text>
+<text class="sub" x="96" y="680">in id order; two postings</text>
+<path class="sync" d="M700 664H930"/>
+<text class="label t-accent" x="712" y="654">post, store, commit</text>
+<circle class="dot-g" cx="66" cy="728" r="15"/>
+<text class="num" x="66" y="733" text-anchor="middle">8</text>
+<text class="label b t-ink" x="96" y="724">The answer is signed</text>
+<text class="sub" x="96" y="744">the merchant verifies it</text>
+<path class="ok" d="M700 728H470"/>
+<text class="label t-good" x="482" y="718">Bank-Signature</text>
+<path class="ok" d="M700 728H790"/>
+<rect class="win" x="790" y="708" width="257" height="40" rx="10"/>
+<text class="label b t-good" x="806" y="733">PAID: one payment, signed</text>
+<path class="sync" d="M48 792H112"/><text class="legend" x="124" y="797">sync call</text>
+<path class="fail" d="M696 792H760"/><text class="legend" x="772" y="797">failure path</text>
+<path class="ok" d="M928 792H992"/><text class="legend" x="1004" y="797">result</text>
+</svg>

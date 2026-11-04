@@ -54,6 +54,8 @@ The domain (money, the transfer, consent and its rules, the challenge, the signe
 
 ## Data flow of one payment (`make run`, sections 4 and 5)
 
+Drawn versions of this figure and of the walk-through: [the architecture](docs/diagrams/architecture.svg) and [one run](docs/diagrams/flow.svg).
+
 1. The merchant's client asks for a token if it has none (or the old one is about to expire): `POST /oauth/token` with the secret and a proof signed by its key. The bank verifies the secret (a slow hash), the proof (signature, method, URL, time, id not seen before), and issues an opaque token whose digest, key thumbprint and expiry it stores.
 2. For the payment the client signs the canonical request (merchant, consent, payee, amount, currency, **idempotency key**) with its key, builds a fresh proof of possession that names the method, the URL and the hash of the token, and sends them with the `Idempotency-Key`.
 3. The bank authenticates the caller in its own transaction (token exists, unexpired, bound to the registered key, proof valid and new). The proof's id is stored even if the payment is later refused, so a captured proof cannot be replayed.

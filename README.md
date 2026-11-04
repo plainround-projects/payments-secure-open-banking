@@ -12,6 +12,24 @@ An open-banking style payment against a mock bank: a customer authenticates stro
 
 Everything is a local simulation with fake accounts; no real bank, money or personal data is involved.
 
+## Architecture
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/architecture-dark.svg">
+  <img alt="The Customer authenticates at Bank login, which sends a code to the Mock bank's phone and creates a consent in Accounts and consents. The Merchant service takes no part in that; it calls the Payment API with a key-bound token and a signed request, and the Payment API posts the payment once." src="docs/diagrams/architecture.svg">
+</picture>
+
+The customer's authentication and the merchant's authentication are separate paths into the same bank, and only the bank decides, so the merchant's code cannot reach the bank's login or consent code.
+
+## How one run flows
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/flow-dark.svg">
+  <img alt="The merchant gets a key-bound token, signs the request with its idempotency key, and the bank authenticates it, checks the signature before the consent, checks every rule, posts once and signs the answer." src="docs/diagrams/flow.svg">
+</picture>
+
+The amber row is a changed amount, refused with request_not_as_signed before the consent is read; the green box is the signed, once-only payment.
+
 ## Prerequisites
 
 | Tool | Version | Used for |
